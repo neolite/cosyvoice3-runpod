@@ -20,6 +20,9 @@ RUN grep -v -E "^(tensorrt|deepspeed)" requirements.txt > req.txt \
     && pip install --no-cache-dir -r req.txt \
     && rm req.txt
 
+# Fix ruamel.yaml version (compatibility with hyperpyyaml)
+RUN pip install --no-cache-dir "ruamel.yaml<0.18"
+
 # Install RunPod SDK
 RUN pip install --no-cache-dir runpod
 
