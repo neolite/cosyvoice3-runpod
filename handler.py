@@ -66,7 +66,7 @@ def handler(job):
     stream = input_data.get("stream", False)
 
     # Optional parameters for voice cloning
-    prompt_text = input_data.get("prompt_text", "You are a helpful assistant.<|endofprompt|>希望你以后能够做的比我还好呦。")
+    prompt_text = input_data.get("prompt_text", "You are a helpful assistant.<|endofprompt|>")
     prompt_audio_base64 = input_data.get("prompt_audio_base64", None)
     instruct = input_data.get("instruct", "You are a helpful assistant.<|endofprompt|>")
 
