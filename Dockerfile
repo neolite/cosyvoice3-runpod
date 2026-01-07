@@ -14,8 +14,10 @@ RUN apt-get update && apt-get install -y \
 # Clone CosyVoice repository
 RUN git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git /app
 
-# Install Python dependencies (skip torch since it's in base image)
-RUN pip install --no-cache-dir -r requirements.txt --ignore-installed torch torchaudio
+# Install Python dependencies (skip torch and tensorrt - too large for GitHub Actions)
+RUN grep -v -E "^(torch|torchaudio|tensorrt)" requirements.txt > requirements_filtered.txt \
+    && pip install --no-cache-dir -r requirements_filtered.txt \
+    && rm -rf /root/.cache/pip requirements_filtered.txt
 
 # Install RunPod SDK
 RUN pip install --no-cache-dir runpod>=1.6.0
