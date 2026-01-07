@@ -2,34 +2,33 @@ FROM pytorch/pytorch:2.4.1-cuda12.4-cudnn9-runtime
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies and clean up
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     ffmpeg \
     libsndfile1 \
-    wget \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Clone CosyVoice repository
-RUN git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git /app
+RUN git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git /app \
+    && rm -rf .git third_party/*/.git
 
-# Install Python dependencies (skip torch and tensorrt - too large for GitHub Actions)
-RUN grep -v -E "^(torch|torchaudio|tensorrt)" requirements.txt > requirements_filtered.txt \
-    && pip install --no-cache-dir -r requirements_filtered.txt \
-    && rm -rf /root/.cache/pip requirements_filtered.txt
+# Install Python dependencies (exclude heavy packages)
+RUN grep -v -E "^(torch|torchaudio|tensorrt|deepspeed|onnxruntime)" requirements.txt > req.txt \
+    && pip install --no-cache-dir -r req.txt \
+    && rm req.txt
 
 # Install RunPod SDK
-RUN pip install --no-cache-dir runpod>=1.6.0
+RUN pip install --no-cache-dir runpod
 
-# Download models (or use Network Volume for faster cold start)
-COPY download_model.py /app/download_model.py
-RUN python download_model.py
-
-# Copy handler
+# Copy handler and model downloader
 COPY handler.py /app/handler.py
+COPY download_model.py /app/download_model.py
 
+# Models will be downloaded at runtime or mounted via Network Volume
+# Set model path via environment variable
 ENV PYTHONUNBUFFERED=1
-ENV NVIDIA_VISIBLE_DEVICES=all
+ENV MODEL_DIR=/runpod-volume/models/cosyvoice3
 
 CMD ["python", "-u", "handler.py"]

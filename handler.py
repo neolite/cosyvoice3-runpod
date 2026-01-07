@@ -7,11 +7,34 @@ import os
 sys.path.append('third_party/Matcha-TTS')
 
 MODEL = None
+MODEL_DIR = os.environ.get('MODEL_DIR', 'pretrained_models/Fun-CosyVoice3-0.5B')
+
+
+def download_models_if_needed():
+    """Download models if not present"""
+    model_path = os.path.join(MODEL_DIR, 'config.yaml')
+    if os.path.exists(model_path):
+        print(f"Models found at {MODEL_DIR}")
+        return
+
+    print(f"Models not found at {MODEL_DIR}, downloading...")
+    from huggingface_hub import snapshot_download
+
+    os.makedirs(MODEL_DIR, exist_ok=True)
+
+    snapshot_download(
+        'FunAudioLLM/Fun-CosyVoice3-0.5B-2512',
+        local_dir=MODEL_DIR
+    )
+    print("Models downloaded successfully")
+
 
 def load_model():
     """Load CosyVoice3 model once at startup"""
+    download_models_if_needed()
+
     from cosyvoice.cli.cosyvoice import AutoModel
-    model = AutoModel(model_dir='pretrained_models/Fun-CosyVoice3-0.5B')
+    model = AutoModel(model_dir=MODEL_DIR)
     return model
 
 
