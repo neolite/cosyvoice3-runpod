@@ -1,0 +1,2 @@
+# Additional dependencies for RunPod (main deps from CosyVoice repo)
+runpod>=1.6.0
