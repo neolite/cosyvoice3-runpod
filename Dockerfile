@@ -16,7 +16,7 @@ RUN git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git /app \
     && rm -rf .git third_party/*/.git
 
 # Install Python dependencies (exclude heavy packages for space)
-RUN grep -v -E "^(tensorrt|deepspeed|onnxruntime)" requirements.txt > req.txt \
+RUN grep -v -E "^(tensorrt|deepspeed)" requirements.txt > req.txt \
     && pip install --no-cache-dir -r req.txt \
     && rm req.txt
 
