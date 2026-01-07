@@ -20,6 +20,9 @@ RUN grep -v -E "^(torch|torchaudio|tensorrt|deepspeed|onnxruntime)" requirements
     && pip install --no-cache-dir -r req.txt \
     && rm req.txt
 
+# Fix torchvision version to match PyTorch 2.4.1
+RUN pip install --no-cache-dir torchvision==0.19.1 --no-deps
+
 # Install RunPod SDK
 RUN pip install --no-cache-dir runpod
 
