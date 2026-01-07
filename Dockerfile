@@ -15,13 +15,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git /app \
     && rm -rf .git third_party/*/.git
 
-# Install Python dependencies (exclude heavy packages)
-RUN grep -v -E "^(torch|torchaudio|tensorrt|deepspeed|onnxruntime)" requirements.txt > req.txt \
+# Install packages that depend on torch with --no-deps
+RUN pip install --no-cache-dir --no-deps \
+    conformer==0.3.2 \
+    lightning==2.2.4 \
+    torchvision==0.20.1
+
+# Install other Python dependencies (exclude torch-dependent and heavy packages)
+RUN grep -v -E "^(torch|torchaudio|tensorrt|deepspeed|onnxruntime|conformer|lightning)" requirements.txt > req.txt \
     && pip install --no-cache-dir -r req.txt \
     && rm req.txt
-
-# Fix torchvision version to match PyTorch 2.5.1
-RUN pip install --no-cache-dir torchvision==0.20.1 --no-deps
 
 # Install RunPod SDK
 RUN pip install --no-cache-dir runpod
